@@ -4,6 +4,8 @@
 #include <QString>
 #include <QPixmap>
 #include <QImage>
+#include <QDir>
+#include <vector>
 
 CGUI::CGUI(QWidget *parent) : QMainWindow(parent), ui(new Ui::CGUI)
 {
@@ -13,11 +15,13 @@ CGUI::CGUI(QWidget *parent) : QMainWindow(parent), ui(new Ui::CGUI)
 	QObject::connect(ui->performButton, SIGNAL(clicked()), this, SLOT(perform()));
 
 	ui->imageView->setScene(&m_scene);
+	ui->evulationScore->setReadOnly(true);
 }
 
 void CGUI::loadImage()
 {
-    QString pathToFile = QFileDialog::getOpenFileName(this,tr("Open Image"),"/home",
+	QString currentDir = QDir::currentPath(); 
+    QString pathToFile = QFileDialog::getOpenFileName(this,tr("Open Image"),currentDir,
                                 tr("Image Files (*.png *.jpg *.bmp)"));
     
 	if(true == pathToFile.isEmpty())
@@ -26,11 +30,11 @@ void CGUI::loadImage()
 		return;
 	}
 
-	if(nullptr == m_ocr)
-	{
-		m_ocr.reset(new COCR(pathToFile.toStdString()));
-	}
+	m_ocr.reset(new COCR(pathToFile.toStdString()));
+	m_ocr->init(currentDir.toStdString(), "eng");
 
+	
+	ui->evulationScore->setText("");
 
 	QImage image(pathToFile);
     m_scene.clear();
@@ -42,8 +46,15 @@ void CGUI::perform()
 {
 	if(nullptr != m_ocr)
 	{
-		QString score = m_ocr->perform().c_str();
-		ui->evulationScore->setText(score);
+		auto scores = m_ocr->perform();
+		std::string out;
+
+		for(auto iter = scores.begin(); iter!=scores.end(); ++iter)
+		{
+			out += iter->first + "\n";
+		}
+
+		ui->evulationScore->setText(QString(out.c_str()));
 	}
 }
 

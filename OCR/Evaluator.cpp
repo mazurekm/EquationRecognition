@@ -3,19 +3,25 @@
 #include <regex>
 #include <stack>
 #include <iostream>
+#include <algorithm>
+#include <iterator>
 
 std::string CEvaluator::operator()(const std::string &str)
 {
 	if(true == str.empty())
 	{
-		return "";
+		return std::string();
 	}
 
-	std::string buff = transformToOnp('('+str+')');
+	std::string noWhiteChars; 
+   	std::copy_if(str.begin(), str.end(), std::back_inserter(noWhiteChars), [](char c){return c!='\n'&&c!=' ';} ); 
+
+	std::string buff = transformToOnp('('+noWhiteChars+')');
 	double result = evaluate(buff);
-	
+		
 	std::stringstream sst;
-	sst << str << '='  << result;
+	sst << noWhiteChars << '='  << result;
+	
 	return sst.str();
 }
 

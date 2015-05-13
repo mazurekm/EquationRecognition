@@ -4,6 +4,7 @@ project (OpenCV)
 
 file(GLOB binaries ${CMAKE_CURRENT_SOURCE_DIR}/lib/*.so)
 
+
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 

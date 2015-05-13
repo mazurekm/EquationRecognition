@@ -2,6 +2,7 @@
 #define EVALUATOR
 
 #include<string>
+#include<vector>
 
 class CEvaluator
 {
