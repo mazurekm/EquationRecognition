@@ -3,6 +3,9 @@
 
 #include<string>
 #include<vector>
+#include<map>
+
+typedef std::map<std::string, double> Polynomial;
 
 class CEvaluator
 {
@@ -12,10 +15,22 @@ public:
 	}
 
 	std::string operator()(const std::string &str);
+	Polynomial add(const Polynomial &el1, const Polynomial &el2);
+	Polynomial mul(const Polynomial &el1, const Polynomial &el2);
+	Polynomial minus(const Polynomial &el1, const Polynomial &el2);
+	Polynomial div(Polynomial &el1, Polynomial &el2);
+
+	std::string transformToOnp(const std::string &str);
+	Polynomial evaluate(const std::string &exp);
 
 private:
-	std::string transformToOnp(const std::string &str);
-	double evaluate(const std::string &exp);
+
+	enum EquationType
+	{
+		ArtmeticExp,
+		PolyEq,
+		NoEq	
+	};
 
 
 };

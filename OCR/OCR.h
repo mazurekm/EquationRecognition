@@ -21,6 +21,9 @@ public:
 	~COCR();
 
 private:
+
+	void verifyConfidence(std::string &str, int *tab);
+
 	std::string m_path;
 	CEvaluator m_evaluator;
 	CImageProcessing m_process;
