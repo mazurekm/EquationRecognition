@@ -2,7 +2,13 @@ cmake_minimum_required (VERSION 2.8)
 
 project (OCR)
 
-set(SOURCE OCR.cpp Evaluator.cpp ImageProcessing.cpp EqualSolver.cpp)
+set(SOURCE 
+	OCR.cpp 
+	Evaluator.cpp 
+	ImageProcessing.cpp 
+	EqualSolver.cpp 
+	ArthmeticSolver.cpp
+	SolverFactory.cpp)
 
 find_package (Boost COMPONENTS system regex REQUIRED)
 

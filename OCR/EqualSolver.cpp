@@ -1,8 +1,15 @@
 #include "EqualSolver.h"
 #include <iterator>
 #include <algorithm>
+#include <OCR/Evaluator.h>
+#include <boost/lexical_cast.hpp>
 
 CEqualSolver::CEqualSolver(Polynomial &eq)
+{
+	init(eq);
+}
+
+void CEqualSolver::init(Polynomial &eq)
 {
 	auto lastEl = eq.end();
 	m_degree = (--lastEl)->first.size(); 
@@ -17,9 +24,16 @@ CEqualSolver::CEqualSolver(Polynomial &eq)
 	for(auto & iter : eq)
 	{
 		m_eq[iter.first.size()] = iter.second;	
-	}
+	}	
 }
 
+
+CEqualSolver::CEqualSolver(const std::string &eq)
+{
+	CEvaluator eval;
+	auto resultOfeval = eval(eq);
+	init(resultOfeval);
+}
 
 std::vector<double> CEqualSolver::solve()
 {
@@ -31,6 +45,27 @@ std::vector<double> CEqualSolver::solve()
 
 	delete [] solution;
 	return result;
+}
+
+std::string CEqualSolver::solveAndToStr()
+{
+	auto res = solve();
+	std::string asString;
+
+	std::string re, im;
+	for(size_t i=0; i<res.size(); i+=2)
+	{
+		re = boost::lexical_cast<std::string>(res[i]);
+
+		if(0 != res[i+1])
+		{
+			im = boost::lexical_cast<std::string>(res[i+1]) + "j";
+		}
+
+		asString += re + " " + im + "\n";
+	}
+
+	return asString;
 }
 
 CEqualSolver::~CEqualSolver()

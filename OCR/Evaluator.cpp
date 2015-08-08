@@ -6,26 +6,52 @@
 #include <iterator>
 #include <boost/lexical_cast.hpp>
 #include <boost/regex.hpp>
+#include <boost/algorithm/string.hpp>
 #include <list>
+#include <sstream>
 
-std::string CEvaluator::operator()(const std::string &str)
+Polynomial CEvaluator::operator()(const std::string &str)
 {
 	if(true == str.empty())
 	{
-		return std::string();
+		return Polynomial();
 	}
 
 	std::string noWhiteChars; 
    	std::copy_if(str.begin(), str.end(), std::back_inserter(noWhiteChars), 
 					[](char c){return c!='\n'&&c!=' ';} ); 
 
-	std::string buff = transformToOnp('('+noWhiteChars+')');
-	double result = 0;
+	auto buff = parseInputStr(noWhiteChars);
+	auto onp = transformToOnp('('+buff+')');
+	auto eval = evaluate(onp);
 		
-	std::stringstream sst;
-	sst << noWhiteChars << '='  << result;
+	return eval;
+}
+
+
+std::string CEvaluator::parseInputStr(const std::string &eq)
+{
+	std::string result = eq+"+_";
+	std::list<boost::regex> regList;
+	boost::sregex_iterator i1;;
+	boost::sregex_iterator i2;
 	
-	return sst.str();
+	regList.push_back(boost::regex("(((\\w)|(\\(.+\\)))[\\^])+((\\w)|(\\(.+\\)))"));
+	regList.push_back(boost::regex("(((\\w)|(\\(.+\\)))[*])+((\\w)|(\\(.+\\)))"));
+	
+	for(auto &reg : regList)
+	{
+		i1 = boost::sregex_iterator(result.begin(), result.end(), reg);
+		while(i1 != i2)
+		{
+			std::stringstream matched;
+			matched << *i1;
+			boost::replace_all(result, matched.str(), "("+matched.str()+")");
+			++i1;
+		}
+	}
+
+	return result.substr(0,result.size()-2);
 }
 
 std::string CEvaluator::transformToOnp(const std::string &str)
@@ -34,16 +60,32 @@ std::string CEvaluator::transformToOnp(const std::string &str)
 	std::stack<std::list<char> >symbols;
 	std::string result;;
 	std::string specialChars = "+-*/^";
+	bool isNegative = false;
 
 	auto it = str.begin();
 	for(;it != str.end();++it)
 	{
 		if('(' == *it)
 		{
-			symbols.push(std::list<char>());
+			if( *(it+1) != '-')
+			{
+				symbols.push(std::list<char>());
+			}
+			else
+			{
+				letters += "(";
+				isNegative = true;
+			}
 		}
 		else if(')' == *it)
 		{
+			if(true == isNegative)
+			{
+				isNegative = false;
+				letters += ")";
+				continue;
+			}
+
 			letters += " ";	
 			result += letters;
 
@@ -57,8 +99,15 @@ std::string CEvaluator::transformToOnp(const std::string &str)
 		}
 		else if(std::string::npos != specialChars.find(*it))
 		{
-			letters += " ";
-			symbols.top().push_front(*it);
+			if(false == isNegative)
+			{
+				letters += " ";
+				symbols.top().push_front(*it);
+			}
+			else
+			{
+				letters += *it;	
+			}
 		}
 			
 		else
@@ -73,6 +122,7 @@ Polynomial CEvaluator::evaluate(const std::string &exp)
 {
 	std::stack<Polynomial> S;
 	std::string tmpNum;
+	bool isNegative = false;
 	Polynomial a,b;
 
 	for(auto iter = exp.begin(); iter != exp.end(); ++iter) 
@@ -85,9 +135,16 @@ Polynomial CEvaluator::evaluate(const std::string &exp)
 		}
 		else if('-' == *iter) 
 		{
-			a = S.top(); S.pop();
-			b = S.top(); S.pop();
-			S.push( minus(b, a) );
+			if(true == isNegative)
+			{
+				tmpNum += *iter;
+			}
+			else
+			{
+				a = S.top(); S.pop();
+				b = S.top(); S.pop();
+				S.push( minus(b, a) );
+			}
 		}
 		else if('*' == *iter) 
 		{
@@ -100,6 +157,12 @@ Polynomial CEvaluator::evaluate(const std::string &exp)
 			a = S.top(); S.pop();
 			b = S.top(); S.pop();
 			S.push( div(b,a) );
+		}
+		else if('^' == *iter)
+		{
+			a = S.top(); S.pop();
+			b = S.top(); S.pop();
+			S.push( pow(b,a) );
 		}
 		else if(' ' == *iter)
 		{
@@ -137,7 +200,18 @@ Polynomial CEvaluator::evaluate(const std::string &exp)
 		}
 		else
 		{
-			tmpNum += *iter;	
+			if('(' == *iter)
+			{
+				isNegative = true;
+			}
+			else if(')' == *iter)
+			{
+				isNegative = false;
+			}
+			else
+			{
+				tmpNum += *iter;	
+			}
 		}
 	}
 	return S.top();
@@ -168,17 +242,31 @@ Polynomial CEvaluator::add(const Polynomial &eq1, const Polynomial &eq2)
 Polynomial CEvaluator::mul(const Polynomial &eq1, const Polynomial &eq2)
 {
 	Polynomial result;
+
+	if(true == eq1.empty())
+	{
+		return eq2;
+	}
+
+	if(true == eq2.empty())
+	{
+		return eq1;
+	}
+
 	for(auto &iter1 : eq1)
 	{
 		for(auto &iter2 : eq2)
 		{
-			if(result.end() !=  result.find(iter1.first+iter2.first) )
+			std::string key = iter1.first + iter2.first;
+			std::sort(key.begin(), key.end());
+			
+			if(result.end() !=  result.find(key) )
 			{
-				result[iter1.first+iter2.first] += iter1.second*iter2.second;
+				result[key] += iter1.second*iter2.second;
 			}
 			else
 			{
-				result[iter1.first+iter2.first] = iter1.second*iter2.second;
+				result[key] = iter1.second*iter2.second;
 			}
 		}
 	}
@@ -204,6 +292,17 @@ Polynomial CEvaluator::div(Polynomial &eq1, Polynomial &eq2)
 	Polynomial res;
 	double a = eq1[""], b = eq2[""]; 
 	res[""] = a/b;
+	return res;
+}
+
+
+Polynomial CEvaluator::pow(Polynomial &el1, Polynomial &exp)
+{
+	Polynomial res;
+	for(int i = 0; i<exp[""]; ++i)
+	{
+		res = mul(res, el1);
+	}
 	return res;
 }
 

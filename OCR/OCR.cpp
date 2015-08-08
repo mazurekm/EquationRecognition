@@ -43,7 +43,7 @@ std::vector<std::pair<std::string,int> > COCR::perform()
 			if(false == ocrResult.empty())
 			{
 				std::clog << ocrResult << " with confidence " <<m_tess.MeanTextConf() << std::endl;
-				results.push_back(std::make_pair(m_evaluator(ocrResult), m_tess.MeanTextConf()));
+				results.push_back(std::make_pair(ocrResult, m_tess.MeanTextConf()));
 			}
 			
 		}
