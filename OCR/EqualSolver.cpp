@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <OCR/Evaluator.h>
 #include <boost/lexical_cast.hpp>
+#include <iostream>
 
 CEqualSolver::CEqualSolver(Polynomial &eq)
 {
@@ -11,6 +12,31 @@ CEqualSolver::CEqualSolver(Polynomial &eq)
 
 void CEqualSolver::init(Polynomial &eq)
 {
+	if( true == eq.empty())
+	{
+		throw IncorrectEq();
+	}
+
+	std::string firstElKey = (--eq.end())->first;
+
+	if( true == firstElKey.empty())
+	{
+		throw IncorrectEq();
+	} 
+
+	char var = firstElKey[0];
+	for(auto &pair : eq)
+	{
+
+		for(auto &character : pair.first)
+		{
+			if(var != character)
+			{
+				throw IncorrectEq();
+			}
+		}
+	}
+
 	auto lastEl = eq.end();
 	m_degree = (--lastEl)->first.size(); 
 	m_eq = new double [ m_degree + 1 ];

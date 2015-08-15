@@ -6,15 +6,27 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <stdexcept>
 
 typedef std::map<std::string, double> Polynomial;
+
+class IncorrectEq : public std::runtime_error
+{
+public:
+	IncorrectEq() : std::runtime_error("This is not polynomial equation")
+	{
+
+	}
+};
 
 class CEqualSolver : public IAbstractSolver
 {
 public:
 	CEqualSolver(Polynomial &eq);
 	CEqualSolver(const std::string &eq);
+	
 	~CEqualSolver();
+
 	std::vector<double> solve();
 	std::string solveAndToStr();
 

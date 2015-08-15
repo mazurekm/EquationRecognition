@@ -8,6 +8,11 @@ class CArthmeticSolver : public IAbstractSolver
 public:
 	CArthmeticSolver(const std::string &eq);
 	std::string solveAndToStr();
+	~CArthmeticSolver()
+	{
+
+	}
+
 private:
 	Polynomial m_evResult;
 };

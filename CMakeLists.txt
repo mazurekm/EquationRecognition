@@ -10,7 +10,7 @@ set(OCR_TEST ocr_test)
 set(TEST_DIR ${PROJECT_BINARY_DIR}/Tests)
 
 if(CPP11)
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=gnu++0x")
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=gnu++0x -ggdb")
 endif()
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})

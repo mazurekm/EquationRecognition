@@ -1,11 +1,21 @@
 #ifndef EVALUATOR
 #define EVALUATOR
 
-#include<string>
-#include<vector>
-#include<map>
+#include <string>
+#include <vector>
+#include <map>
+#include <stdexcept>
 
 typedef std::map<std::string, double> Polynomial;
+
+class IncorrectExp : public std::runtime_error
+{
+public:
+	IncorrectExp() : std::runtime_error("Incorrect input Expression")
+	{
+
+	}
+};
 
 class CEvaluator
 {

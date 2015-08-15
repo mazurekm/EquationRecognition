@@ -10,6 +10,8 @@
 #include <sstream>
 #include <boost/lexical_cast.hpp>
 #include <OCR/ArthmeticSolver.h>
+#include <OCR/SolverFactory.h>
+#include <typeinfo>
 
 BOOST_AUTO_TEST_CASE(add_mul_test)
 {
@@ -97,9 +99,77 @@ BOOST_AUTO_TEST_CASE(full_flow)
 	std::cout << res;
 }
 
+BOOST_AUTO_TEST_CASE(factory_test)
+{
+	std::string exp = "a+b";
+	CSolverFactory factory;
+	std::unique_ptr<IAbstractSolver> ptr(factory.create(exp));
+	BOOST_CHECK_EQUAL(typeid(*ptr).name(), "16CArthmeticSolver");
+
+	exp = "x+2=3";
+	
+	ptr.reset(factory.create(exp));
+	BOOST_CHECK_EQUAL(typeid(*ptr).name(), "12CEqualSolver");	
+}
+
 BOOST_AUTO_TEST_CASE(arthmetic_test)
 {
-	std::string str = "(a+b)^3";
+	std::string str = "(a+b)^2";
 	CArthmeticSolver s(str);
-	std::cout << s.solveAndToStr() << std::endl;
+	BOOST_CHECK_EQUAL(s.solveAndToStr(), "1*a^2+2*a*b+1*b^2");
+}
+
+
+
+BOOST_AUTO_TEST_CASE(incorrect_exp_test)
+{
+	std::string exp = "(^^HGGJ&)+HGGFGJ";
+	CSolverFactory factory;
+	std::unique_ptr<IAbstractSolver> ptr;
+
+	try
+	{
+		ptr.reset( factory.create(exp) );
+		ptr->solveAndToStr();
+		BOOST_CHECK(false);
+	}
+	catch(std::runtime_error &)
+	{
+		BOOST_CHECK(true);
+	}
+
+	exp = "2aa4";
+	try
+	{
+		ptr.reset( factory.create(exp) );
+		std ::cout << ptr->solveAndToStr();
+		BOOST_CHECK(false);
+	}
+	catch(std::runtime_error &)
+	{
+		BOOST_CHECK(true);
+	}
+
+	exp = "5=7";
+	try
+	{
+		ptr.reset( factory.create(exp) );
+		BOOST_CHECK(false);
+	}
+	catch(std::runtime_error &)
+	{
+		BOOST_CHECK(true);
+	}
+
+	exp = "(2)";
+	try
+	{
+		ptr.reset( factory.create(exp) );
+		BOOST_CHECK(true);
+	}
+	catch(std::runtime_error &)
+	{
+		BOOST_CHECK(false);
+	}
+
 }

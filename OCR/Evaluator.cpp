@@ -86,6 +86,11 @@ std::string CEvaluator::transformToOnp(const std::string &str)
 				continue;
 			}
 
+			if(true == symbols.empty())
+			{
+				throw IncorrectExp();
+			}
+
 			letters += " ";	
 			result += letters;
 
@@ -102,6 +107,12 @@ std::string CEvaluator::transformToOnp(const std::string &str)
 			if(false == isNegative)
 			{
 				letters += " ";
+
+				if(true == symbols.empty())
+				{
+					throw IncorrectExp();
+				}
+
 				symbols.top().push_front(*it);
 			}
 			else
@@ -115,6 +126,12 @@ std::string CEvaluator::transformToOnp(const std::string &str)
 			letters += *it;
 		}
 	}
+
+	if(false == symbols.empty())
+	{
+		throw IncorrectExp();
+	}
+
 	return result;
 }
 
@@ -124,13 +141,25 @@ Polynomial CEvaluator::evaluate(const std::string &exp)
 	std::string tmpNum;
 	bool isNegative = false;
 	Polynomial a,b;
+	std::string artOps = "+*-^/";
 
 	for(auto iter = exp.begin(); iter != exp.end(); ++iter) 
 	{
+		if(std::string::npos != artOps.find(*iter))
+		{
+			if(2 > S.size() && false == isNegative)
+			{
+				throw IncorrectExp();
+			}
+			else if(false == isNegative)
+			{
+				a = S.top(); S.pop();
+				b = S.top(); S.pop();
+			}
+		}
+
 		if('+' == *iter)
 		{
-			a = S.top(); S.pop();
-			b = S.top(); S.pop();
 			S.push( add(a,b) );
 		}
 		else if('-' == *iter) 
@@ -141,27 +170,19 @@ Polynomial CEvaluator::evaluate(const std::string &exp)
 			}
 			else
 			{
-				a = S.top(); S.pop();
-				b = S.top(); S.pop();
 				S.push( minus(b, a) );
 			}
 		}
 		else if('*' == *iter) 
 		{
-			a = S.top(); S.pop();
-			b = S.top(); S.pop();
 			S.push( mul(a, b) );
 		}
 		else if('/' == *iter) 
 		{
-			a = S.top(); S.pop();
-			b = S.top(); S.pop();
 			S.push( div(b,a) );
 		}
 		else if('^' == *iter)
 		{
-			a = S.top(); S.pop();
-			b = S.top(); S.pop();
 			S.push( pow(b,a) );
 		}
 		else if(' ' == *iter)
@@ -179,7 +200,7 @@ Polynomial CEvaluator::evaluate(const std::string &exp)
 				catch(boost::bad_lexical_cast &)
 				{
 					boost::smatch matched;
-					boost::regex reg("([0-9]*)([*]?)([a-zA-Z]*)([0-9]*)");
+					boost::regex reg("^([0-9]*)([*]?)([a-zA-Z]*)$");
 
 					if(true == boost::regex_search(tmpNum, matched, reg))
 					{
@@ -191,6 +212,10 @@ Polynomial CEvaluator::evaluate(const std::string &exp)
 						{
 							pol[ matched[3] ] = 1;
 						}
+					}
+					else
+					{
+						throw IncorrectExp();
 					}
 				}
 				
@@ -259,7 +284,7 @@ Polynomial CEvaluator::mul(const Polynomial &eq1, const Polynomial &eq2)
 		{
 			std::string key = iter1.first + iter2.first;
 			std::sort(key.begin(), key.end());
-			
+
 			if(result.end() !=  result.find(key) )
 			{
 				result[key] += iter1.second*iter2.second;
@@ -305,4 +330,3 @@ Polynomial CEvaluator::pow(Polynomial &el1, Polynomial &exp)
 	}
 	return res;
 }
-

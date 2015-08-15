@@ -7,7 +7,7 @@
 class CSolverFactory
 {
 public:
-	std::unique_ptr<IAbstractSolver> create(const std::string &str);
+	IAbstractSolver* create(const std::string &str);
 private:
 	std::string parse(const std::string &eq);
 };

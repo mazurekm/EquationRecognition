@@ -1,20 +1,27 @@
 #include <OCR/SolverFactory.h>
 #include <OCR/EqualSolver.h>
+#include <OCR/Evaluator.h>
 #include <OCR/ArthmeticSolver.h>
 #include <boost/algorithm/string.hpp>
 #include <vector>
 
-std::unique_ptr<IAbstractSolver> CSolverFactory::create(const std::string &str)
+IAbstractSolver* CSolverFactory::create(const std::string &str)
 {
 	std::vector<std::string> res;
 	boost::split(res, str, boost::is_any_of("="));
-
-	if(res.size() > 2)
+	
+	if(res.size() > 2 || true == res.empty() )
 	{
 		throw IncorrectExp();
 	}
 
-	return std::unique_ptr<IAbstractSolver>(new CEqualSolver(str));
+	if(1 == res.size())
+	{
+		return new CArthmeticSolver(res[0]);
+	}
+
+	std::string eq = res[0] + "-" + "(" + res[1] + ")";
+	return new CEqualSolver(eq);
 }
 
 std::string CSolverFactory::parse(const std::string &eq)
