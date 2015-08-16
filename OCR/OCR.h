@@ -18,11 +18,18 @@ public:
 	COCR(const std::string &path);
 	void init(const std::string &data, const std::string &lang = "eng");
 	std::vector<std::pair<std::string, int> > perform();
+	
+	cv::Mat getProcessedImg() const
+	{
+		return m_process.getProcessedImg();
+	}
+
 	~COCR();
 
 private:
 
 	void verifyConfidence(std::string &str, int *tab);
+	void postProcess(std::string &exp);
 
 	std::string m_path;
 	CEvaluator m_evaluator;

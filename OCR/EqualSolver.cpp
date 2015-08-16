@@ -88,9 +88,20 @@ std::string CEqualSolver::solveAndToStr()
 			im = boost::lexical_cast<std::string>(res[i+1]) + "j";
 		}
 
-		asString += re + " " + im + "\n";
+		if(false == im.empty())
+		{
+			asString += re + " + " + im + "\n";
+			im.clear();
+		}
+		else
+		{
+			asString += re + "\n";	
+		}
+
+		re.clear();
 	}
 
+	asString.erase(asString.end()-1);
 	return asString;
 }
 

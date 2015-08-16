@@ -92,7 +92,7 @@ BOOST_AUTO_TEST_CASE(rg_test)
 
 BOOST_AUTO_TEST_CASE(full_flow)
 {
-	std::string eq = "x^2-4";
+	std::string eq = "(((x-1)^2)-7)^3+7*7-(7*x+5-x^2)";
 	CEvaluator ev;
 	CEqualSolver s(eq);
 	auto res = s.solveAndToStr(); 

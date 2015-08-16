@@ -21,6 +21,8 @@ file(COPY ${Data} DESTINATION ${DEST})
 
 target_link_libraries (${PROJECT_NAME}
 		GSL
+		OpenCV
+		Tesseract
 		${Boost_SYSTEM_LIBRARY}
 		${Boost_REGEX_LIBRARY})
 

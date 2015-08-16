@@ -2,6 +2,9 @@
 #include "OCR.h"
 #include <memory>
 #include <cstdlib>
+#include <boost/algorithm/string.hpp>
+#include <cctype>
+#include <algorithm>
 
 COCR::COCR(const std::string &path) : m_path(path), m_process(path)
 {
@@ -23,25 +26,29 @@ void COCR::init(const std::string &data, const std::string &lang)
 
 std::vector<std::pair<std::string,int> > COCR::perform()
 {
-	m_process.process();
-	cv::Mat img = m_process.getProcessedImg();
+	cv::Mat img;
+	cv::cvtColor(m_process.getOriginalImg(), img, CV_BGR2GRAY);
 
 	if(false == img.empty())
 	{
 		std::vector<std::pair<std::string,int> > results;
 		m_tess.SetImage((uchar*)img.data, img.cols, img.rows, 1, img.cols);
-		Boxa* boxes = m_tess.GetComponentImages(tesseract::RIL_TEXTLINE, true, NULL, NULL);
+		std::unique_ptr<Boxa> boxes( m_tess.GetComponentImages(
+									tesseract::RIL_TEXTLINE, 
+									true, NULL, NULL) );
 		
 		for (int i = 0; i < boxes->n; i++) 
 		{
-			std::unique_ptr<BOX> box( boxaGetBox(boxes, i, L_CLONE) );
+			std::unique_ptr<BOX> box( boxaGetBox(boxes.get(), i, L_CLONE) );
 			m_tess.SetRectangle(box->x, box->y, box->w, box->h);
-			std::string ocrResult = m_tess.GetUTF8Text();
-		
-			verifyConfidence(ocrResult, NULL);
+			m_process.markTextBox( cv::Rect(box->x, box->y, box->w, box->h) );
 
+			std::string ocrResult = m_tess.GetUTF8Text();
+			
+			//verifyConfidence(ocrResult, NULL);
 			if(false == ocrResult.empty())
 			{
+				postProcess(ocrResult);
 				std::clog << ocrResult << " with confidence " <<m_tess.MeanTextConf() << std::endl;
 				results.push_back(std::make_pair(ocrResult, m_tess.MeanTextConf()));
 			}
@@ -54,6 +61,12 @@ std::vector<std::pair<std::string,int> > COCR::perform()
 	return std::vector<std::pair<std::string, int> >();	
 }
 
+void COCR::postProcess(std::string &exp)
+{
+	boost::replace_all(exp, "\"", "^");
+	boost::replace_all(exp, "\n", "");
+	boost::to_lower(exp);
+}
 
 void COCR::verifyConfidence(std::string &str, int *tab)
 {

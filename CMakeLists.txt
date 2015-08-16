@@ -15,6 +15,7 @@ endif()
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/OpenCV/include)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Tesseract/include)
 
 find_package(Qt4 REQUIRED)
 INCLUDE(${QT_USE_FILE})	
@@ -27,8 +28,7 @@ add_subdirectory(GUI)
 
 add_executable(${PROJECT_NAME} main.cpp)
 
-target_link_libraries(${PROJECT_NAME} OpenCV)
-target_link_libraries(${PROJECT_NAME} Tesseract)
+target_link_libraries(${PROJECT_NAME} OCR)
 target_link_libraries(${PROJECT_NAME} GUI)
 
 enable_testing()

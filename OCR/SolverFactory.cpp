@@ -15,7 +15,7 @@ IAbstractSolver* CSolverFactory::create(const std::string &str)
 		throw IncorrectExp();
 	}
 
-	if(1 == res.size())
+	if(1 == res.size() || (2 == res.size() && true == res[1].empty() ) )
 	{
 		return new CArthmeticSolver(res[0]);
 	}

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>723</width>
-    <height>471</height>
+    <width>820</width>
+    <height>651</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,18 +17,18 @@
    <widget class="QTextEdit" name="evulationScore">
     <property name="geometry">
      <rect>
-      <x>510</x>
-      <y>80</y>
-      <width>201</width>
-      <height>71</height>
+      <x>20</x>
+      <y>340</y>
+      <width>491</width>
+      <height>231</height>
      </rect>
     </property>
    </widget>
    <widget class="QLabel" name="evLabel">
     <property name="geometry">
      <rect>
-      <x>510</x>
-      <y>50</y>
+      <x>20</x>
+      <y>320</y>
       <width>67</width>
       <height>21</height>
      </rect>
@@ -55,8 +55,8 @@
      <rect>
       <x>20</x>
       <y>80</y>
-      <width>461</width>
-      <height>301</height>
+      <width>371</width>
+      <height>231</height>
      </rect>
     </property>
    </widget>
@@ -73,13 +73,23 @@
      <string>Load</string>
     </property>
    </widget>
+   <widget class="QGraphicsView" name="procImgView">
+    <property name="geometry">
+     <rect>
+      <x>430</x>
+      <y>80</y>
+      <width>351</width>
+      <height>231</height>
+     </rect>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>723</width>
+     <width>820</width>
      <height>29</height>
     </rect>
    </property>
