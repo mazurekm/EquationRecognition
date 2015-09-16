@@ -16,6 +16,7 @@ endif()
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/OpenCV/include)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Tesseract/include)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/GSL/include)
 
 find_package(Qt4 REQUIRED)
 INCLUDE(${QT_USE_FILE})	
